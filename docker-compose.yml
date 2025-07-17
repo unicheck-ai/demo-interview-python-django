@@ -1,0 +1,57 @@
+services:
+  app:
+    build: .
+    volumes:
+      - .:/app:cached
+    ports:
+      - "8000"
+    command: ${APP_CMD:-sleep infinity}
+    networks:
+      - app_network
+    depends_on: 
+      db:
+        condition: service_healthy
+      cache:
+        condition: service_healthy
+    
+  db:
+    image: postgis/postgis:15-3.4
+    restart: unless-stopped
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    networks: 
+      - app_network
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-appdb} 
+      POSTGRES_USER: ${POSTGRES_USER:-dbuser}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-dbpassword}
+    ports:
+      - "5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  cache:
+    image: redis:7
+    restart: unless-stopped
+    networks: 
+      - app_network
+    ports:
+      - "6379" 
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:
+  redis_data:
+
+networks:
+  app_network:
+    driver: bridge

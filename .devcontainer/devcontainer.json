@@ -1,0 +1,38 @@
+{
+	"name": "Devcontainer",
+	"dockerComposeFile": ["../docker-compose.yml"],
+	"service": "app",
+	"runServices": ["db", "cache"],
+	"overrideCommand": true,
+	"postCreateCommand": "make setup",
+	"workspaceFolder": "/app",
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"streetsidesoftware.code-spell-checker",
+				"batisteo.vscode-django",
+				"ms-vscode.makefile-tools",
+				"ms-python.python",
+				"ms-azuretools.vscode-docker",
+				"cweijan.vscode-database-client2"
+			],
+			"settings": {
+				"python.testing.pytestEnabled": true,
+				"python.testing.unittestEnabled": false,
+				"python.testing.pytestArgs": ["tests"],
+				"python.pythonPath": "/usr/local/bin/python",
+				"files.exclude": {
+					"**/__pycache__": true,
+					"**/.idea": true,
+					"**/.mypy_cache": true,
+					"**/.pytest_cache": true,
+					"**/.python-version": true,
+					"**/.ruff_cache": true
+				},
+				"makefile.configureOnOpen": false,
+				
+				"explorer.confirmDelete": false
+			}
+		}
+	}
+}
