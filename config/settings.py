@@ -28,7 +28,9 @@ INSTALLED_APPS = [
     # Third-party apps
     'rest_framework',
     'django_redis',
-    # Aplication
+    # API Docs
+    'drf_spectacular',
+    # Application
     'app.apps.AppConfig',
 ]
 
@@ -63,14 +65,12 @@ TEMPLATES = [
 WSGI_APPLICATION = 'config.wsgi.application'
 ASGI_APPLICATION = 'config.asgi.application'
 
-
 DATABASES = {
     'default': {
         **env.db('DATABASE_URL', default='postgres://dbuser:dbpassword@db:5432/appdb'),
         'ENGINE': 'django.contrib.gis.db.backends.postgis',
     }
 }
-
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -87,7 +87,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 LANGUAGE_CODE = 'en-us'
 
 TIME_ZONE = 'UTC'
@@ -97,7 +96,6 @@ USE_I18N = True
 USE_TZ = True
 
 STATIC_URL = 'static/'
-
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
@@ -113,21 +111,26 @@ REST_FRAMEWORK = {
     ],
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 10,
-    'DEFAULT_SCHEMA_CLASS': 'rest_framework.schemas.openapi.AutoSchema',
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 }
-
 
 CACHES = {'default': env.cache('CACHE_URL', default='redis://localhost:6379/0')}
 SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
 SESSION_CACHE_ALIAS = 'default'
 
-
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
+    'formatters': {
+        'json': {
+            '()': 'structlog.stdlib.ProcessorFormatter',
+            'processor': 'structlog.processors.JSONRenderer',
+        },
+    },
     'handlers': {
         'console': {
             'class': 'logging.StreamHandler',
+            'formatter': 'json',
         },
     },
     'root': {
@@ -141,4 +144,11 @@ LOGGING = {
             'propagate': False,
         },
     },
+}
+
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'Localized Tour Itinerary & Booking API',
+    'DESCRIPTION': 'Tour & Booking API, supporting geo, i18n, booking, statistics.',
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
 }

@@ -10,3 +10,6 @@ pytest-django>=4.11.1
 freezegun>=1.5.3
 ruff>=0.12.3
 pillow>=11.3.0
+drf-spectacular>=0.26.5
+structlog>=24.1.0
+django-filter>=24.2
