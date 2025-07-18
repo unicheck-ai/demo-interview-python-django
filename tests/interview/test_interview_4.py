@@ -7,7 +7,6 @@ from app.models import PointOfInterest, POITranslation
 pytestmark = [pytest.mark.django_db]
 
 
-@pytest.mark.xfail(strict=True)
 def test_poi_detail_returns_localised_name(authenticated_api_client, user):
     poi = PointOfInterest.objects.create(operator=user, name='Castle', location=Point(10.0, 50.0))
     POITranslation.objects.create(poi=poi, language_code='de', name='Burg', description='Schönes Schloss')

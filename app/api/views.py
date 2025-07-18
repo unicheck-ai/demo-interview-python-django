@@ -13,7 +13,14 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from app import services
-from app.models import AttractionSchedule, Booking, Itinerary, ItineraryItem, PointOfInterest, Review
+from app.models import (
+    AttractionSchedule,
+    Booking,
+    Itinerary,
+    ItineraryItem,
+    PointOfInterest,
+    Review,
+)
 
 from .permissions import IsOperatorOrReadOnly, IsOwnerOrReadOnly
 from .serializers import (

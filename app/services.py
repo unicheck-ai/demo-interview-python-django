@@ -195,8 +195,7 @@ def get_itinerary_stats(itinerary_id: int) -> Dict[str, Any]:
 
 def get_translation(poi: PointOfInterest, lang_code: Optional[str] = None) -> Any:
     lang_code = lang_code or get_language()
-    try:
-        translation = poi.translations.get(language_code=lang_code)
-        return translation.name, translation.description
-    except POITranslation.DoesNotExist:
-        return poi.name, ''
+    for translation in poi.translations.all():
+        if translation.language_code == lang_code:
+            return translation.name, translation.description
+    return poi.name, ''
