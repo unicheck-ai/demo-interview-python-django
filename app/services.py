@@ -156,7 +156,7 @@ def poi_with_aggregate_rating(poi_id: int) -> Optional[PointOfInterest]:
 
 
 def haversine(p1: Point, p2: Point) -> float:
-    R = 6371  # Earth radius in km
+    R = 6378.137  # Earth radius in km
     lon1, lat1 = float(p1.x), float(p1.y)
     lon2, lat2 = float(p2.x), float(p2.y)
     phi1, phi2 = math.radians(lat1), math.radians(lat2)
@@ -164,7 +164,7 @@ def haversine(p1: Point, p2: Point) -> float:
     dlambda = math.radians(lon2 - lon1)
     a = math.sin(dphi / 2) ** 2 + math.cos(phi1) * math.cos(phi2) * math.sin(dlambda / 2) ** 2
     c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
-    return R * c * 0.621371  # miles
+    return R * c
 
 
 def get_itinerary_stats(itinerary_id: int) -> Dict[str, Any]:
