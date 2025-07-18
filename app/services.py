@@ -132,9 +132,9 @@ def cancel_booking(booking: Booking) -> None:
         schedule.save(update_fields=['remaining_capacity'])
 
 
-def submit_review(user, poi: PointOfInterest, rating: int, text: str) -> Review:
-    review, _ = Review.objects.update_or_create(user=user, poi=poi, defaults={'rating': rating, 'text': text})
-    return review
+def submit_review(user, poi: PointOfInterest, rating: int, text: str) -> tuple[Review, bool]:
+    review, created = Review.objects.update_or_create(user=user, poi=poi, defaults={'rating': rating, 'text': text})
+    return review, created
 
 
 def get_poi_reviews(poi: PointOfInterest):
@@ -156,7 +156,7 @@ def poi_with_aggregate_rating(poi_id: int) -> Optional[PointOfInterest]:
 
 
 def haversine(p1: Point, p2: Point) -> float:
-    R = 6371  # Earth radius in km
+    R = 6378.137  # Earth radius in km
     lon1, lat1 = float(p1.x), float(p1.y)
     lon2, lat2 = float(p2.x), float(p2.y)
     phi1, phi2 = math.radians(lat1), math.radians(lat2)
@@ -164,7 +164,7 @@ def haversine(p1: Point, p2: Point) -> float:
     dlambda = math.radians(lon2 - lon1)
     a = math.sin(dphi / 2) ** 2 + math.cos(phi1) * math.cos(phi2) * math.sin(dlambda / 2) ** 2
     c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
-    return R * c * 0.621371  # miles
+    return R * c
 
 
 def get_itinerary_stats(itinerary_id: int) -> Dict[str, Any]:
@@ -195,8 +195,7 @@ def get_itinerary_stats(itinerary_id: int) -> Dict[str, Any]:
 
 def get_translation(poi: PointOfInterest, lang_code: Optional[str] = None) -> Any:
     lang_code = lang_code or get_language()
-    try:
-        translation = poi.translations.get(language_code=lang_code)
-        return translation.name, translation.description
-    except POITranslation.DoesNotExist:
-        return poi.name, ''
+    for translation in poi.translations.all():
+        if translation.language_code == lang_code:
+            return translation.name, translation.description
+    return poi.name, ''

@@ -2,6 +2,7 @@ from django.contrib.gis.geos import Point
 from rest_framework import serializers
 
 from app.models import AttractionSchedule, Booking, Itinerary, ItineraryItem, PointOfInterest, POITranslation, Review
+from app.services import get_translation
 
 
 class POITranslationSerializer(serializers.ModelSerializer):
@@ -32,6 +33,8 @@ class PointOfInterestSerializer(serializers.ModelSerializer):
         loc = instance.location
         if isinstance(loc, Point):
             rep['location'] = {'type': 'Point', 'coordinates': [loc.x, loc.y]}
+        translation, _ = get_translation(instance)
+        rep['name'] = translation
         return rep
 
 

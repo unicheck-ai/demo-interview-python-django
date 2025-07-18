@@ -1,4 +1,5 @@
 from functools import wraps
+from typing import Any
 
 from django.core.cache import cache
 from django.core.exceptions import ValidationError as DjangoValidationError
@@ -7,11 +8,19 @@ from django.shortcuts import get_object_or_404
 from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.exceptions import ValidationError as DRFValidationError
+from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from app import services
-from app.models import AttractionSchedule, Booking, Itinerary, ItineraryItem, PointOfInterest, Review
+from app.models import (
+    AttractionSchedule,
+    Booking,
+    Itinerary,
+    ItineraryItem,
+    PointOfInterest,
+    Review,
+)
 
 from .permissions import IsOperatorOrReadOnly, IsOwnerOrReadOnly
 from .serializers import (
@@ -128,7 +137,7 @@ class AttractionScheduleViewSet(viewsets.ModelViewSet):
 
 
 class ItineraryViewSet(viewsets.ModelViewSet):
-    queryset = Itinerary.objects.all().prefetch_related('items')
+    queryset = Itinerary.objects.all().prefetch_related('items', 'items__poi', 'items__poi__translations')
     serializer_class = ItinerarySerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
 
@@ -189,11 +198,20 @@ class ReviewViewSet(viewsets.ModelViewSet):
     serializer_class = ReviewSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
 
-    def perform_create(self, serializer):
-        services.submit_review(
+    def create(self, request: Request, *args: Any, **kwargs: Any) -> Response:
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        review, created = services.submit_review(
             self.request.user,
             serializer.validated_data['poi'],
             serializer.validated_data['rating'],
             serializer.validated_data['text'],
         )
-        serializer.save(user=self.request.user)
+        response_serializer = self.get_serializer(review)
+
+        if created:
+            response_status = status.HTTP_201_CREATED
+        else:
+            response_status = status.HTTP_200_OK
+
+        return Response(response_serializer.data, status=response_status)
