@@ -130,7 +130,7 @@ class AttractionScheduleViewSet(viewsets.ModelViewSet):
 
 
 class ItineraryViewSet(viewsets.ModelViewSet):
-    queryset = Itinerary.objects.all().prefetch_related('items')
+    queryset = Itinerary.objects.all().prefetch_related('items', 'items__poi', 'items__poi__translations')
     serializer_class = ItinerarySerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
 
