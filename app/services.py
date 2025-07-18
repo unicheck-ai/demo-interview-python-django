@@ -132,9 +132,9 @@ def cancel_booking(booking: Booking) -> None:
         schedule.save(update_fields=['remaining_capacity'])
 
 
-def submit_review(user, poi: PointOfInterest, rating: int, text: str) -> Review:
-    review, _ = Review.objects.update_or_create(user=user, poi=poi, defaults={'rating': rating, 'text': text})
-    return review
+def submit_review(user, poi: PointOfInterest, rating: int, text: str) -> tuple[Review, bool]:
+    review, created = Review.objects.update_or_create(user=user, poi=poi, defaults={'rating': rating, 'text': text})
+    return review, created
 
 
 def get_poi_reviews(poi: PointOfInterest):

@@ -8,7 +8,6 @@ from app.models import PointOfInterest, Review
 pytestmark = [pytest.mark.django_db]
 
 
-@pytest.mark.xfail(strict=True)
 def test_duplicate_review_updates_not_crashes():
     user = User.objects.create_user(username='dup', password='pw')
     client = APIClient()
